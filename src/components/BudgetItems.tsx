@@ -1,112 +1,135 @@
-import { Box, Button, Flex, Heading, Separator, Text, TextField } from "@radix-ui/themes";
-import { useState } from "react";
-import { v4 as uuidev4 } from "uuid";
+import { Box, Button, Flex, Heading, Select, Separator, Text, TextField } from "@radix-ui/themes";
+import { useEffect } from "react";
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
+import type { IBudgetItem, IFormInput } from "../interfaces/interfaces";
 
-interface IBudgetItemns {
-    id: string;
-    productAndService: string;
-    quantity: number;
-    unitValue: number;
-    total: number;
+export interface IOnChange {
+    onChange: (data: IBudgetItem[]) => void;
 }
 
-export default function BudgetItems() {
+export default function BudgetItems({ onChange }: IOnChange) {
+    const { register, control, setValue } = useForm<IFormInput>({
+        defaultValues: { budgetItems: [] },
+        mode: "onChange"
+    });
+    const { fields, append, remove } = useFieldArray({
+        control,
+        name: "budgetItems"
+    })
 
-    const [items, setItems] = useState<IBudgetItemns[]>([]);
+    const data = useWatch({
+        control,
+        name: "budgetItems"
+    });
+
+    useEffect(() => {
+        if (!data) return;
+
+        data.forEach((item: IBudgetItem, index: any) => {
+            const quantity = parseFloat(item?.quantity) || 0;
+            const unitValue = parseFloat(item?.unitValue) || 0;
+            const total = (quantity * unitValue).toFixed(2);
+
+            if (item.total !== total) {
+                setValue(`budgetItems.${index}.total`, total);
+            }
+        })
+
+        onChange(data);
+    }, [data, setValue]);
+
+
 
     const handleAddItem = () => {
-        setItems([
-            ...items,
-            { id: uuidev4(), productAndService: "", quantity: NaN, unitValue: NaN, total: NaN }
-        ]);
+        append({ productAndService: "", quantity: "", units: "", unitValue: "", total: 0 });
     };
 
-    const handleRemoveItem = (id: string) => {
-        const updateItems = items.filter((item) => item.id !== id);
-        setItems(updateItems);
+    const handleRemoveItem = (index: number) => {
+        remove(index);
     };
-
-    const handleOnChange = (id: string, field: keyof IBudgetItemns, value: string | number) => {
-        setItems(prev =>
-            prev.map(item => {
-                if (item.id === id) {
-                    const updatedItem = { ...item, [field]: field === "productAndService" ? value : Number(value) };
-
-                    // Atualiza o total automaticamente, se for quantidade ou valor unitário
-                    if (field === "quantity" || field === "unitValue") {
-                        updatedItem.total = updatedItem.quantity * updatedItem.unitValue;
-                    }
-
-                    return updatedItem;
-                }
-                return item;
-            })
-        );
-    };
-
 
     return (
         <Box mb={"6"} p={"4"} style={{ border: "1px solid #c2c2c2", borderRadius: "5px" }}>
             <Heading as="h3" size={"5"} mb={"5"}>Itens do orçamento</Heading>
             <Flex gap={"4"} direction={"column"} width={"900px"}>
-                {items.map((item) => (
+                {fields.map((item, index) => (
                     <Box key={item.id}>
                         <Box>
-                            <Text ml={"2"} as="label" htmlFor="productAndService" size={"2"}>Produto / Serviço</Text>
+                            <Text ml={"2"} as="label" size={"2"}>Produto / Serviço</Text>
                             <TextField.Root
                                 type="text"
-                                name="productAndService"
                                 size="3"
                                 placeholder="Produto / Serviço"
-                                value={item.productAndService}
-                                onChange={(e) => handleOnChange(item.id, "productAndService", e.target.value)}
+                                {...register(`budgetItems.${index}.productAndService`)}
                             />
                         </Box>
-                        <Flex gap={"3"}>
+                        <Flex gap={"3"} width={"100%"}>
                             <Box width={"100%"}>
-                                <Text ml={"2"} as="label" htmlFor="quantity" size={"2"}>Qtd.</Text>
-                                <TextField.Root
-                                    type="number"
-                                    name="quantity"
-                                    size="3"
-                                    placeholder="Qtd"
-                                    value={item.quantity}
-                                    onChange={(e) => handleOnChange(item.id, "quantity", e.target.value)}
-
-                                />
+                                <Text ml={"2"} as="label" size={"2"}>Qtd.</Text>
+                                <Flex width={"100%"} gap={"1"}>
+                                    <Box width={"100%"}>
+                                        <TextField.Root
+                                            type="number"
+                                            size="3"
+                                            placeholder="Qtd"
+                                            {...register(`budgetItems.${index}.quantity`)}
+                                        />
+                                    </Box>
+                                    <Box maxWidth={"100%"}>
+                                        <Controller
+                                            name={`budgetItems.${index}.units`}
+                                            control={control}
+                                            defaultValue="UN"
+                                            render={({ field }) => (
+                                                <Select.Root value={field.value} onValueChange={field.onChange} size={"3"}>
+                                                    <Select.Trigger variant="surface" />
+                                                    <Select.Content>
+                                                        <Select.Item value="UN">UN</Select.Item>
+                                                        <Select.Item value="PC">PC</Select.Item>
+                                                        <Select.Item value="MM">MM</Select.Item>
+                                                        <Select.Item value="CC">CC</Select.Item>
+                                                        <Select.Item value="MT">MT</Select.Item>
+                                                        <Select.Item value="KM">KM</Select.Item>
+                                                    </Select.Content>
+                                                </Select.Root>
+                                            )}
+                                        />
+                                    </Box>
+                                </Flex>
                             </Box>
                             <Box width={"100%"}>
-                                <Text ml={"2"} as="label" htmlFor="unitValue" size={"2"}>{"Valor unitário (R$)"}</Text>
+                                <Text ml={"2"} as="label" size={"2"}>{"Valor unitário (R$)"}</Text>
                                 <TextField.Root
                                     type="number"
-                                    name="unitValue"
                                     size="3"
                                     placeholder="Valor unitário"
-                                    value={item.unitValue}
-                                    onChange={(e) => handleOnChange(item.id, "unitValue", e.target.value)}
-
+                                    {...register(`budgetItems.${index}.unitValue`)}
                                 />
                             </Box>
                             <Box width={"100%"}>
-                                <Text ml={"2"} as="label" htmlFor="total" size={"2"}>Total</Text>
+                                <Text ml={"2"} as="label" size={"2"}>Total</Text>
                                 <TextField.Root
                                     type="number"
-                                    name="total"
                                     size="3"
-                                    placeholder="Total"
-                                    value={item.total.toFixed(2)}
-                                    disabled
+                                    {...register(`budgetItems.${index}.total`)}
+                                    readOnly
                                 />
                             </Box>
                             <Flex align={"end"} width={"100%"} justify={"center"}>
-                                <Button type="button" onClick={() => handleRemoveItem(item.id)} style={{ cursor: "pointer", width: "100%" }} size={"3"} color="tomato" variant="surface">X Remover item</Button>
+                                <Button type="button" onClick={() => handleRemoveItem(index)} style={{ cursor: "pointer", width: "100%" }} size={"3"} color="tomato" variant="surface">X Remover item</Button>
                             </Flex>
                         </Flex>
                         <Separator size={"4"} my={"3"} />
                     </Box>
                 ))}
-                <Flex width={"100%"}>
+                <Flex width={"100%"} justify={"between"} align={"center"}>
                     <Button type="button" onClick={handleAddItem} style={{ cursor: "pointer" }} size={"3"} variant="surface">+ Adicionar item</Button>
+                    <Box>
+                        <Text size={"5"} weight={"bold"} mr={"2"}>
+                            Total:
+                        </Text>
+                        <Text size={"5"}>R$ {data.reduce((acc, item) => acc + +item.total, 0).toFixed(2)}</Text>
+                    </Box>
                 </Flex>
             </Flex>
         </Box>

@@ -1,117 +1,147 @@
 import { Box, Flex, Heading, Text, TextField } from "@radix-ui/themes";
+import { useEffect } from "react";
+import { useForm, useWatch } from "react-hook-form";
+import type { ICustomerData } from "../interfaces/interfaces";
 
-export default function CustomerData() {
+export interface IOnChange {
+    onChange: (data: ICustomerData) => void;
+}
+
+export default function CustomerData({ onChange }: IOnChange) {
+    const { register, control } = useForm<ICustomerData>({
+        defaultValues: {
+            name: "",
+            cpfCnpj: "",
+            address: "",
+            number: "",
+            neighborhood: "",
+            cep: "",
+            city: "",
+            state: "",
+            phone: "",
+            email: "",
+            website: ""
+        }
+    });
+
+    const data = useWatch({ control });
+
+    useEffect(() => {
+        onChange(data);
+    }, [data])
+
     return (
         <Box mb={"6"} p={"4"} style={{ border: "1px solid #c2c2c2", borderRadius: "5px" }}>
             <Heading as="h3" size={"5"} mb={"5"}>Dados do cliente</Heading>
             <Flex gap={"4"} direction={"column"} width={"900px"}>
                 <Flex gap={"3"}>
                     <Box width={"100%"}>
-                        <Text ml={"2"} as="label" htmlFor="name" size={"2"}>Nome</Text>
+                        <Text ml={"2"} as="label" size={"2"}>Nome</Text>
                         <TextField.Root
                             type="text"
-                            name="name"
                             size="3"
                             placeholder="Nome"
+                            {...register("name")}
                         />
                     </Box>
                     <Box width={"50%"}>
-                        <Text ml={"2"} as="label" htmlFor="cpf-cnpj" size={"2"}>CPF / CNPJ</Text>
+                        <Text ml={"2"} as="label" size={"2"}>CPF / CNPJ</Text>
                         <TextField.Root
                             type="number"
-                            name="cpf-cnpj"
                             size="3"
                             placeholder="CPF / CNPJ"
+                            {...register("cpfCnpj")}
                         />
                     </Box>
                 </Flex>
                 <Flex gap={"3"}>
                     <Box width={"100% "}>
-                        <Text ml={"2"} as="label" htmlFor="address" size={"2"}>Endereço</Text>
+                        <Text ml={"2"} as="label" size={"2"}>Endereço</Text>
                         <TextField.Root
                             type="text"
-                            name="address"
                             size="3"
                             placeholder="Endereço completo"
+                            {...register("address")}
                         />
                     </Box>
                     <Box maxWidth={"80px"}>
-                        <Text ml={"2"} as="label" htmlFor="number" size={"2"}>Número</Text>
+                        <Text ml={"2"} as="label" size={"2"}>Número</Text>
                         <TextField.Root
                             type="number"
-                            name="number"
                             size="3"
                             placeholder="Número"
+                            {...register("number")}
                         />
                     </Box>
                     <Box width={"50%"}>
-                        <Text ml={"2"} as="label" htmlFor="neighborhood" size={"2"}>Bairro</Text>
+                        <Text ml={"2"} as="label" size={"2"}>Bairro</Text>
                         <TextField.Root
                             type="text"
-                            name="neighborhood"
                             size="3"
-                            placeholder="Número"
+                            placeholder="Bairro"
+                            {...register("neighborhood")}
                         />
                     </Box>
                 </Flex>
                 <Flex gap={"3"}>
                     <Box width={"50%"}>
-                        <Text ml={"2"} as="label" htmlFor="cep" size={"2"}>CEP</Text>
+                        <Text ml={"2"} as="label" size={"2"}>CEP</Text>
                         <TextField.Root
                             type="number"
-                            name="cep"
                             size="3"
-                            placeholder="Número"
+                            placeholder="CEP"
+                            {...register("cep")}
                         />
                     </Box>
                     <Box width={"100%"}>
-                        <Text ml={"2"} as="label" htmlFor="city" size={"2"}>Cidade</Text>
+                        <Text ml={"2"} as="label" size={"2"}>Cidade</Text>
                         <TextField.Root
                             type="text"
-                            name="city"
                             size="3"
                             placeholder="Cidade"
+                            {...register("city")}
                         />
                     </Box>
-                    <Box maxWidth={"80px"}>
-                        <Text ml={"2"} as="label" htmlFor="state" size={"2"}>UF</Text>
+                    <Box maxWidth={"6%"}>
+                        <Text ml={"2"} as="label" size={"2"}>UF</Text>
                         <TextField.Root
                             type="text"
-                            name="state"
                             size="3"
-                            placeholder="Estado"
                             maxLength={2}
+                            {...register("state")}
                         />
                     </Box>
                 </Flex>
                 <Flex gap={"3"}>
                     <Box width={"60%"}>
-                        <Text ml={"2"} as="label" htmlFor="phone" size={"2"}>Telefone</Text>
+                        <Text ml={"2"} as="label" size={"2"}>Telefone</Text>
                         <TextField.Root
                             type="number"
-                            name="phone"
                             size="3"
                             placeholder="Telefone"
+                            {...register("phone")}
                         />
                     </Box>
                     <Box width={"100%"}>
-                        <Text ml={"2"} as="label" htmlFor="email" size={"2"}>E-Mail</Text>
+                        <Text ml={"2"} as="label" size={"2"}>E-Mail</Text>
                         <TextField.Root
                             type="email"
-                            name="email"
                             size="3"
                             placeholder="E-Mail"
+                            {...register("email")}
+
                         />
                     </Box>
-                    <Box width={"100%"}>
-                        <Text ml={"2"} as="label" htmlFor="site" size={"2"}>Site</Text>
+                    {/* <Box width={"100%"}>
+                        <Text ml={"2"} as="label" size={"2"}>Site</Text>
                         <TextField.Root
                             type="text"
-                            name="site"
                             size="3"
                             placeholder="Site"
+                            {...register("website")}
+
                         />
-                    </Box>
+                    </Box> */}
                 </Flex>
             </Flex>
         </Box>

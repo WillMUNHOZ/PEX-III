@@ -4,9 +4,11 @@ import Form from "./components/Form";
 import "./App.css"
 
 export default function App() {
+
+
     return (
         <Theme appearance="light">
-            <Flex justify={"center"}>
+            <Flex justify={"center"} maxWidth={"100%"}>
                 <Form />
             </Flex>
         </Theme>
