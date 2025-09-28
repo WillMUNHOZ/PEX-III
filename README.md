@@ -97,3 +97,7 @@ PEX-III-main/
 - **`src/interfaces`**: Define as interfaces TypeScript usadas no projeto.
 - **`src/assets`**: Armazena os arquivos de mídia, como imagens e logos.
 - **`public/`**: Contém os arquivos estáticos que são servidos diretamente pelo servidor.
+
+<br/><br/>
+
+<img width="1450" height="833" alt="image" src="https://github.com/user-attachments/assets/0b173a69-9f16-44a9-bbb8-4eeb15fb7fd7" />
